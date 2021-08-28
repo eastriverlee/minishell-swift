@@ -6,8 +6,7 @@ private var _pipe: Pipe = Pipe()
 private var pipe_: Pipe = Pipe()
 
 var currentPipe: Pipe { alternate ? _pipe : pipe_ }
-var previousPipe: Pipe { alternate ? pipe_ : _pipe }
-func revivePreviousPipe() { if alternate { pipe_ = Pipe() } else { _pipe = Pipe() } }
+var previousPipe: Pipe { get { alternate ? pipe_ : _pipe } set { if alternate { pipe_ = newValue } else { _pipe = newValue } } }
 
 enum Pipekind {
     case first
@@ -48,11 +47,11 @@ func closePipe(of kind: Pipekind) {
             try! currentPipe.fileHandleForWriting.close()
         case .middle:
             try! previousPipe.fileHandleForReading.close()
-            revivePreviousPipe()
+            previousPipe = Pipe()
             try! currentPipe.fileHandleForWriting.close()
         case .last: 
             try! previousPipe.fileHandleForReading.close()
-            revivePreviousPipe()
+            previousPipe = Pipe()
         default: break
     }
 }
